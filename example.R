@@ -20,5 +20,6 @@ lData = f_LoadObject('lData.publish.rds')
 # it is a list with various components
 names(lData)
 
-mCounts = lData$expression
+mCounts = t(lData$expression)
+fBatch = factor(lData$sample$fGroups.2)
 
