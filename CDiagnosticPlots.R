@@ -203,7 +203,7 @@ setMethod('CDiagnosticPlotsSetParameters', signature = 'CDiagnosticPlots', defin
   }
   # or else put new parameters
   obj@lParam = lParam
-  return(obj)
+  return(CDiagnosticPlotsBuild(obj))
 })
 
 ###################################### analysis related functions
@@ -217,13 +217,19 @@ setMethod('plot.mean.summary', signature = 'CDiagnosticPlots', definition = func
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)[i]]
   plot(df[i,'m'], pch=20, col=col, ylim=c(min(df[,'m.down']), max(df[,'m.up'])), main=paste('Mean Summary', obj@csTitle),
-       xlab='Samples', xaxt='n', ylab='Average')
+       xlab='', xaxt='n', ylab='Average')
+  ## plot the sample labels
+  axis(side = 1, 1:nrow(df), labels=F)
+  text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
+       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=0.6)
   # order the data matrix according to batches
   df = df[i,]
   for(l in 1:nrow(df)){
     lines(x=c(l, l), y=df[l,c(2,3)], col=col[l], lwd=0.5)
   }
-  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=nlevels(fBatch))
+  ## if more than 3 or 4 levels, then plot legend separately
+  if (nlevels(fBatch) > 3) plot.new()
+  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
 })
 
 setGeneric('plot.sigma.summary', function(obj, fBatch, legend.pos='bottomright', ...)standardGeneric('plot.sigma.summary'))
@@ -234,13 +240,19 @@ setMethod('plot.sigma.summary', signature = 'CDiagnosticPlots', definition = fun
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)[i]]
   plot(df[i,'m'], pch=20, col=col, ylim=c(min(df[,'m.down']), max(df[,'m.up'])), main=paste('Sigma Summary', obj@csTitle),
-       xlab='Samples', xaxt='n', ylab='Average')
+       xlab='', xaxt='n', ylab='Average')
+  ## plot the sample labels
+  axis(side = 1, 1:nrow(df), labels=F)
+  text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
+       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=0.6)
   # order the data matrix according to batches
   df = df[i,]
   for(l in 1:nrow(df)){
     lines(x=c(l, l), y=df[l,c(2,3)], col=col[l], lwd=0.5)
   }
-  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=nlevels(fBatch))
+  ## if more than 3 or 4 levels, then plot legend separately
+  if (nlevels(fBatch) > 3) plot.new()
+  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
 })
 
 setGeneric('plot.missing.summary', function(obj, fBatch, legend.pos='bottomright', ...)standardGeneric('plot.missing.summary'))
@@ -252,13 +264,19 @@ setMethod('plot.missing.summary', signature = 'CDiagnosticPlots', definition = f
   col = col.p[as.numeric(fBatch)[i]]
   plot(df[i,'psuc'], pch=20, col=col, ylim=c(min(df[,'psuc.down']), max(df[,'psuc.up'])), main=paste('Proportion of Data Present Summary', 
                                                                                                      obj@csTitle),
-       xlab='Samples', xaxt='n', ylab='Average Proportion')
+       xlab='', xaxt='n', ylab='Average Proportion')
+  ## plot the sample labels
+  axis(side = 1, 1:nrow(df), labels=F)
+  text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
+       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=0.6)
   # order the data matrix according to batches
   df = df[i,]
   for(l in 1:nrow(df)){
     lines(x=c(l, l), y=df[l,c(2,3)], col=col[l], lwd=0.5)
   }
-  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=nlevels(fBatch))
+  ## if more than 3 or 4 levels, then plot legend separately
+  if (nlevels(fBatch) > 3) plot.new()
+  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
 })
 
 
@@ -271,11 +289,13 @@ setMethod('plot.PCA', signature = 'CDiagnosticPlots', definition = function(obj,
        main=paste('PCA comp 1 and 2', obj@csTitle))
   if (is.null(csLabels)) csLabels = colnames(obj@mData)
   text(pr.out$x[,1:2], labels = csLabels, pos = 1, cex=0.6)
-  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=nlevels(fBatch), cex=0.8)
+  ## if more than 3 or 4 levels, then plot legend separately
+  if (nlevels(fBatch) > 3) plot.new()
+  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
 })
 
-setGeneric('plot.dendogram', function(obj, fBatch, legend.pos='topright', csLabels=NULL, ...)standardGeneric('plot.dendogram'))
-setMethod('plot.dendogram', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='topright', csLabels=NULL, ...){
+setGeneric('plot.dendogram', function(obj, fBatch, legend.pos='topright', labels_cex=0.25,  ...)standardGeneric('plot.dendogram'))
+setMethod('plot.dendogram', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='topright', labels_cex=0.25, ...){
   hc = obj@lData$HC
   col.p = rainbow(nlevels(fBatch))
   ## plotting a hc object with colours is not straightforward so following example from 
@@ -284,10 +304,12 @@ setMethod('plot.dendogram', signature = 'CDiagnosticPlots', definition = functio
   dend = as.dendrogram(hc)
   # Assigning the labels of dendrogram object with new colors:
   labels_colors(dend) = col.p[as.numeric(fBatch)][order.dendrogram(dend)]
-  labels_cex(dend) = 0.25
+  labels_cex(dend) = labels_cex
   # Plotting the new dendrogram
   plot(dend, main=paste('Hierarchical clustering of distance matrix for', obj@csTitle), xlab='', sub='Coloured on Batch')
-  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=nlevels(fBatch), cex=0.8)
+  ## if more than 3 or 4 levels, then plot legend separately
+  if (nlevels(fBatch) > 3) plot.new()
+  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
 })
 
 

@@ -4,6 +4,7 @@
 # Desc: example usage of cdiagnostic plots
 
 
+source('CDiagnosticPlots.R')
 
 # utility function to load object
 f_LoadObject = function(r.obj.file)
@@ -15,11 +16,33 @@ f_LoadObject = function(r.obj.file)
   return(env[[nm]])
 }
 
-## load the test data
-lData = f_LoadObject('lData.publish.rds')
+## load the test data, some microarray test data
+lData = f_LoadObject('lData.test_data.rds')
 # it is a list with various components
 names(lData)
 
-mCounts = t(lData$expression)
-fBatch = factor(lData$sample$fGroups.2)
+mCounts = lData$data
 
+## create the object
+oDiag = CDiagnosticPlots(mCounts, 'first Test')
+fBatch.1 = lData$batch
+# check for batch effects with some covariates
+plot.mean.summary(oDiag, fBatch.1)
+
+plot.sigma.summary(oDiag, fBatch.1)
+
+plot.missing.summary(oDiag, fBatch.1)
+
+plot.PCA(oDiag, fBatch.1)
+
+## change parameters 
+l = CDiagnosticPlotsGetParameters(oDiag)
+l
+# set all parameters to false
+l2 = lapply(l, function(x) x = F)
+
+# recalculate with new parameters
+oDiag.2 = CDiagnosticPlotsSetParameters(oDiag, l2)
+plot.PCA(oDiag.2, fBatch.1)
+
+plot.dendogram(oDiag, fBatch.1, labels_cex = 1)
