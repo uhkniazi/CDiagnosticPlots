@@ -319,8 +319,66 @@ setMethod('plot.dendogram', signature = 'CDiagnosticPlots', definition = functio
 })
 
 
+setGeneric('calculateExtremeValues', function(obj, ...)standardGeneric('calculateExtremeValues'))
+setMethod('calculateExtremeValues', signature = 'CDiagnosticPlots', definition = function(obj, ...){
+  ## function defining log posterior 
+  ## Mean and SD at population level
+  logPostNorm = function(theta, data){
+    # we define the sigma on a log scale as optimizers work better
+    # if scale parameters are well behaved
+    s = exp(theta[2])
+    m = theta[1]
+    d = data$vector # data 
+    log.lik = sum(dnorm(d, m, s, log=T))
+    log.prior = 1
+    log.post = log.lik + log.prior
+    return(log.post)
+  }
+  ## define test quantities
+  ## max quantity
+  T1_max = function(Y){
+    return(max(Y))
+  } 
+  
+  ## how many times observed value is greater than simulated
+  getExtreme = function(Trep, Tobs){
+    return(sum(Trep <= Tobs))
+  }
+  
+  ## loop through each sample and identify outlier samples, with ex
+  mOutliers = sapply(1:ncol(obj@mData), function(x){
+    ## get the posterior SD and Mean parameters using SIR algorithm
+    ## and t proposal density
+    lData = list('vector'=obj@mData[,x])
+    mSir = sir(logPostNorm, obj@lData$tpar[[x]], 1000, lData)
+    # take a sample of the same size as the data
+    # i.e. repeat the experiment ~ 200 times
+    mDraws = matrix(NA, nrow = length(lData$vector), ncol=200)
+    
+    for (i in 1:ncol(mDraws)){
+      p = sample(1:1000, size = 1)
+      s = exp(mSir[p,'sigma'])
+      m = mSir[p,'mu']
+      mDraws[,i] = rnorm(nrow(mDraws), m, s)
+    }
+    
+    ## which data point does not fit the
+    ## simulated data in extreme value
+    t = apply(mDraws, 2, T1_max)
+    outlier = sapply(lData$vector, function(o) getExtreme(t, o))
+    return(outlier)})
+  ## add this outlier information to the object
+  obj@lData$ExtremeValues = mOutliers
+  return(obj)
+})
 
 
-
-
+setGeneric('mGetExtremeValues', function(obj, ...)standardGeneric('mGetExtremeValues'))
+setMethod('mGetExtremeValues', signature = 'CDiagnosticPlots', definition = function(obj, ...){
+  # check if this data value exists
+  if (is.null(obj@lData$ExtremeValues)){
+    stop('Error in CDiagnosticPlots::mGetExtremeValues call calculateExtremeValues first to calculate extreme values')
+  }
+  return(obj@lData$ExtremeValues)
+})
 
