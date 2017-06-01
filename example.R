@@ -27,11 +27,13 @@ mCounts = lData$data
 oDiag = CDiagnosticPlots(mCounts, 'first Test')
 fBatch.1 = lData$batch
 # check for batch effects with some covariates
-plot.mean.summary(oDiag, fBatch.1)
+boxplot.median.summary(oDiag, fBatch.1, legend.pos = 'topright', axis.label.cex = 1)
 
-plot.sigma.summary(oDiag, fBatch.1)
+plot.mean.summary(oDiag, fBatch.1, axis.label.cex = 1)
 
-plot.missing.summary(oDiag, fBatch.1)
+plot.sigma.summary(oDiag, fBatch.1, axis.label.cex = 1)
+
+plot.missing.summary(oDiag, fBatch.1, axis.label.cex = 1)
 
 plot.PCA(oDiag, fBatch.1)
 
@@ -46,3 +48,14 @@ oDiag.2 = CDiagnosticPlotsSetParameters(oDiag, l2)
 plot.PCA(oDiag.2, fBatch.1)
 
 plot.dendogram(oDiag, fBatch.1, labels_cex = 1)
+
+## check for extreme values
+oDiag.2 = calculateExtremeValues(oDiag.2)
+m = mGetExtremeValues(oDiag.2)
+## which sample has the most extreme values
+apply(m, 2, function(x) sum(x > 0))
+## which variable was extreme most times
+v = apply(m, 1, function(x) sum(x > 0))
+v[which(v > 1)]
+mCounts[v>1,]
+

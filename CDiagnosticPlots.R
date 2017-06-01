@@ -215,8 +215,27 @@ setMethod('CDiagnosticPlotsSetParameters', signature = 'CDiagnosticPlots', defin
 ###################################### analysis related functions
 ## plotting functions
 
-setGeneric('plot.mean.summary', function(obj, fBatch, legend.pos='bottomright', ...)standardGeneric('plot.mean.summary'))
-setMethod('plot.mean.summary', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', ...){
+setGeneric('boxplot.median.summary', function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...)standardGeneric('boxplot.median.summary'))
+setMethod('boxplot.median.summary', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...){
+  df = obj@mData
+  # order the data according to batches
+  i = order(fBatch)
+  col.p = rainbow(nlevels(fBatch))
+  col = col.p[as.numeric(fBatch)[i]]
+  boxplot(df[,i], pch=20, col=col, main=paste('Medians Summary', obj@csTitle),
+       xlab='', xaxt='n', ylab='Average')
+  ## plot the sample labels
+  axis(side = 1, 1:ncol(df), labels=F)
+  text(1:ncol(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
+       labels=colnames(df)[i], srt=45, adj=1, xpd=TRUE, cex=axis.label.cex)
+  ## if more than 3 or 4 levels, then plot legend separately
+  if (nlevels(fBatch) > 3) plot.new()
+  legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
+})
+
+
+setGeneric('plot.mean.summary', function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...)standardGeneric('plot.mean.summary'))
+setMethod('plot.mean.summary', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...){
   df = obj@lData$mean
   # order the data according to batches
   i = order(fBatch)
@@ -227,7 +246,7 @@ setMethod('plot.mean.summary', signature = 'CDiagnosticPlots', definition = func
   ## plot the sample labels
   axis(side = 1, 1:nrow(df), labels=F)
   text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
-       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=0.6)
+       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=axis.label.cex)
   # order the data matrix according to batches
   df = df[i,]
   for(l in 1:nrow(df)){
@@ -238,8 +257,8 @@ setMethod('plot.mean.summary', signature = 'CDiagnosticPlots', definition = func
   legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
 })
 
-setGeneric('plot.sigma.summary', function(obj, fBatch, legend.pos='bottomright', ...)standardGeneric('plot.sigma.summary'))
-setMethod('plot.sigma.summary', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', ...){
+setGeneric('plot.sigma.summary', function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...)standardGeneric('plot.sigma.summary'))
+setMethod('plot.sigma.summary', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...){
   df = obj@lData$sigma
   # order the data according to batches
   i = order(fBatch)
@@ -250,7 +269,7 @@ setMethod('plot.sigma.summary', signature = 'CDiagnosticPlots', definition = fun
   ## plot the sample labels
   axis(side = 1, 1:nrow(df), labels=F)
   text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
-       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=0.6)
+       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=axis.label.cex)
   # order the data matrix according to batches
   df = df[i,]
   for(l in 1:nrow(df)){
@@ -261,8 +280,8 @@ setMethod('plot.sigma.summary', signature = 'CDiagnosticPlots', definition = fun
   legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
 })
 
-setGeneric('plot.missing.summary', function(obj, fBatch, legend.pos='bottomright', ...)standardGeneric('plot.missing.summary'))
-setMethod('plot.missing.summary', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', ...){
+setGeneric('plot.missing.summary', function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...)standardGeneric('plot.missing.summary'))
+setMethod('plot.missing.summary', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', axis.label.cex=0.6, ...){
   df = obj@lData$present
   # order the data according to batches
   i = order(fBatch)
@@ -274,7 +293,7 @@ setMethod('plot.missing.summary', signature = 'CDiagnosticPlots', definition = f
   ## plot the sample labels
   axis(side = 1, 1:nrow(df), labels=F)
   text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
-       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=0.6)
+       labels=rownames(df)[i], srt=45, adj=1, xpd=TRUE, cex=axis.label.cex)
   # order the data matrix according to batches
   df = df[i,]
   for(l in 1:nrow(df)){
@@ -368,6 +387,7 @@ setMethod('calculateExtremeValues', signature = 'CDiagnosticPlots', definition =
     outlier = sapply(lData$vector, function(o) getExtreme(t, o))
     return(outlier)})
   ## add this outlier information to the object
+  colnames(mOutliers) = colnames(obj@mData)
   obj@lData$ExtremeValues = mOutliers
   return(obj)
 })
