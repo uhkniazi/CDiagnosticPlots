@@ -84,9 +84,15 @@ setMethod('CDiagnosticPlotsBuild', signature = 'CDiagnosticPlots', definition = 
       names(ret) = c('m', 'm.up', 'm.down')
       return(ret)
     }
+    ## get parameters for the multivariate distribution
+    ## this can be used to generate samples from the posterior
+    getTpar = function(f){
+      tpar = list('m'=f$mode, 'var'=f$var*2, 'df'=4)
+    }
     dfSD = t(sapply(lRet, getsds))
     dfMS = t(sapply(lRet, getms))
-    return(list('mean'=dfMS, 'sigma'=dfSD))
+    lTpar = lapply(lRet, getTpar)
+    return(list('mean'=dfMS, 'sigma'=dfSD, 'tpar'=lTpar))
   }
   
   ## summary of missing data
