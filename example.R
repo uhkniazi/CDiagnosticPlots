@@ -16,46 +16,72 @@ f_LoadObject = function(r.obj.file)
   return(env[[nm]])
 }
 
-## load the test data, some microarray test data
-lData = f_LoadObject('lData.test_data.rds')
+## load the test data 1 and 2, same data normalized in different ways
+lData.1 = f_LoadObject('lData.test_data.rds')
+lData.2 = f_LoadObject('lData.test_data_second.rds')
+
 # it is a list with various components
-names(lData)
+names(lData.1)
+names(lData.2)
 
-mCounts = lData$data
-
+## lets check the 2 normalization methods and see how they compare
 ## create the object
-oDiag = CDiagnosticPlots(mCounts, 'first Test')
-fBatch.1 = lData$batch
-# check for batch effects with some covariates
-boxplot.median.summary(oDiag, fBatch.1, legend.pos = 'topright', axis.label.cex = 1)
+oDiag.1 = CDiagnosticPlots(lData.1$data, 'method 1')
+oDiag.2 = CDiagnosticPlots(lData.2$data, 'method 2')
 
-plot.mean.summary(oDiag, fBatch.1, axis.label.cex = 1)
+# the batch variable we wish to colour by, 
+# this can be any grouping/clustering in the data capture process
+# e.g. in this case it is different lanes/machines
+fBatch = factor(lData.1$batch)
 
-plot.sigma.summary(oDiag, fBatch.1, axis.label.cex = 1)
+par(mfrow=c(1,2))
 
-plot.missing.summary(oDiag, fBatch.1, axis.label.cex = 1)
+## compare the 2 methods using various plots
+boxplot.median.summary(oDiag.1, fBatch, legend.pos = 'topright', axis.label.cex = 0.7)
+boxplot.median.summary(oDiag.2, fBatch, legend.pos = 'topright', axis.label.cex = 0.7)
 
-plot.PCA(oDiag, fBatch.1)
+plot.mean.summary(oDiag.1, fBatch, axis.label.cex = 0.7)
+plot.mean.summary(oDiag.2, fBatch, axis.label.cex = 0.7)
+
+plot.sigma.summary(oDiag.1, fBatch, axis.label.cex = 0.7)
+plot.sigma.summary(oDiag.2, fBatch, axis.label.cex = 0.7)
+
+plot.missing.summary(oDiag.1, fBatch, axis.label.cex = 0.7, cex.main=1)
+plot.missing.summary(oDiag.2, fBatch, axis.label.cex = 0.7, cex.main=1)
+
+plot.PCA(oDiag.1, fBatch, cex.main=1)
+plot.PCA(oDiag.2, fBatch, cex.main=1)
+
+plot.dendogram(oDiag.1, fBatch, labels_cex = 0.8, cex.main=0.7)
+plot.dendogram(oDiag.2, fBatch, labels_cex = 0.8, cex.main=0.7)
+
+## how about the extreme values
+oDiag.1 = calculateExtremeValues(oDiag.1)
+oDiag.2 = calculateExtremeValues(oDiag.2)
+m1 = mGetExtremeValues(oDiag.1)
+m2 = mGetExtremeValues(oDiag.2)
+
+## samples with most extreme values
+apply(m1, 2, function(x) sum(x > 0))
+apply(m2, 2, function(x) sum(x > 0))
+
+## variables that are contributing to this
+v1 = apply(m1, 1, function(x) sum(x > 0))
+v2 = apply(m2, 1, function(x) sum(x > 0))
+
+which(v1 > 0)
+which(v2 > 0)
 
 ## change parameters 
-l = CDiagnosticPlotsGetParameters(oDiag)
+l = CDiagnosticPlotsGetParameters(oDiag.1)
 l
 # set all parameters to false
 l2 = lapply(l, function(x) x = F)
 
 # recalculate with new parameters
-oDiag.2 = CDiagnosticPlotsSetParameters(oDiag, l2)
-plot.PCA(oDiag.2, fBatch.1)
+oDiag.1.2 = CDiagnosticPlotsSetParameters(oDiag.2, l2)
+plot.PCA(oDiag.2, fBatch, cex.main=1)
+plot.PCA(oDiag.1.2, fBatch)
 
-plot.dendogram(oDiag, fBatch.1, labels_cex = 1)
 
-## check for extreme values
-oDiag.2 = calculateExtremeValues(oDiag.2)
-m = mGetExtremeValues(oDiag.2)
-## which sample has the most extreme values
-apply(m, 2, function(x) sum(x > 0))
-## which variable was extreme most times
-v = apply(m, 1, function(x) sum(x > 0))
-v[which(v > 1)]
-mCounts[v>1,]
 

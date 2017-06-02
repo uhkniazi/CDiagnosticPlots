@@ -223,7 +223,7 @@ setMethod('boxplot.median.summary', signature = 'CDiagnosticPlots', definition =
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)[i]]
   boxplot(df[,i], pch=20, col=col, main=paste('Medians Summary', obj@csTitle),
-       xlab='', xaxt='n', ylab='Average')
+       xlab='', xaxt='n', ylab='Average', ...)
   ## plot the sample labels
   axis(side = 1, 1:ncol(df), labels=F)
   text(1:ncol(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
@@ -242,7 +242,7 @@ setMethod('plot.mean.summary', signature = 'CDiagnosticPlots', definition = func
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)[i]]
   plot(df[i,'m'], pch=20, col=col, ylim=c(min(df[,'m.down']), max(df[,'m.up'])), main=paste('Mean Summary', obj@csTitle),
-       xlab='', xaxt='n', ylab='Average')
+       xlab='', xaxt='n', ylab='Average', ...)
   ## plot the sample labels
   axis(side = 1, 1:nrow(df), labels=F)
   text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
@@ -265,7 +265,7 @@ setMethod('plot.sigma.summary', signature = 'CDiagnosticPlots', definition = fun
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)[i]]
   plot(df[i,'m'], pch=20, col=col, ylim=c(min(df[,'m.down']), max(df[,'m.up'])), main=paste('Sigma Summary', obj@csTitle),
-       xlab='', xaxt='n', ylab='Average')
+       xlab='', xaxt='n', ylab='Average', ...)
   ## plot the sample labels
   axis(side = 1, 1:nrow(df), labels=F)
   text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
@@ -287,9 +287,9 @@ setMethod('plot.missing.summary', signature = 'CDiagnosticPlots', definition = f
   i = order(fBatch)
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)[i]]
-  plot(df[i,'psuc'], pch=20, col=col, ylim=c(min(df[,'psuc.down']), max(df[,'psuc.up'])), main=paste('Proportion of Data Present Summary', 
+  plot(df[i,'psuc'], pch=20, col=col, ylim=c(min(df[,'psuc.down']), max(df[,'psuc.up'])), main=paste('Data Present Summary', 
                                                                                                      obj@csTitle),
-       xlab='', xaxt='n', ylab='Average Proportion')
+       xlab='', xaxt='n', ylab='Average Proportion', ...)
   ## plot the sample labels
   axis(side = 1, 1:nrow(df), labels=F)
   text(1:nrow(df), y=par()$usr[3]-0.1*(par()$usr[4]-par()$usr[3]),
@@ -311,7 +311,7 @@ setMethod('plot.PCA', signature = 'CDiagnosticPlots', definition = function(obj,
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)]
   plot(pr.out$x[,1:2], col=col, pch=20, xlab='Z1', ylab='Z2',
-       main=paste('PCA comp 1 and 2', obj@csTitle))
+       main=paste('PCA comp 1 and 2', obj@csTitle), ...)
   if (is.null(csLabels)) csLabels = colnames(obj@mData)
   text(pr.out$x[,1:2], labels = csLabels, pos = 1, cex=0.6)
   ## if more than 3 or 4 levels, then plot legend separately
@@ -331,7 +331,7 @@ setMethod('plot.dendogram', signature = 'CDiagnosticPlots', definition = functio
   labels_colors(dend) = col.p[as.numeric(fBatch)][order.dendrogram(dend)]
   labels_cex(dend) = labels_cex
   # Plotting the new dendrogram
-  plot(dend, main=paste('Hierarchical clustering of distance matrix for', obj@csTitle), xlab='', sub='Coloured on Batch')
+  plot(dend, main=paste('Hierarchical clustering of distance matrix for', obj@csTitle), xlab='', sub='Coloured on Batch', ...)
   ## if more than 3 or 4 levels, then plot legend separately
   if (nlevels(fBatch) > 3) plot.new()
   legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
