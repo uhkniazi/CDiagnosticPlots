@@ -338,6 +338,30 @@ setMethod('plot.dendogram', signature = 'CDiagnosticPlots', definition = functio
 })
 
 
+setGeneric('plot.heatmap', def = function(obj, ivScale = c(-3, 3), col=c('blue', 'black', 'red'), ...) standardGeneric('plot.heatmap'))
+setMethod('plot.heatmap', signature='CDiagnosticPlots', definition = function(obj, ivScale = c(-3, 3), col=c('blue', 'black', 'red'), ...){
+  if (!require(NMF)) stop('R package NMF needs to be installed.')
+  mData = obj@mData
+  # standardize the variables
+  s = apply(mData, 1, sd)
+  ## remove any samples with sd 0
+  f = s <= 0
+  s = s[!f]
+  mData = mData[!f,]
+  mData = t(scale(t(mData)))
+  # cluster the samples
+  hc = hclust(dist(t(mData)))
+  # cluster the variables
+  hcV = hclust(dist(mData))
+  # sanity check
+  # threshhold the values
+  mData[mData < ivScale[1]] = ivScale[1]
+  mData[mData > ivScale[2]] = ivScale[2]
+  # draw the heatmap  color='-RdBu:50'
+  aheatmap(mData, color=col, breaks=0, scale='none', Rowv = hcV, annColors=NA, Colv=hc, ...)
+})
+
+
 setGeneric('calculateExtremeValues', function(obj, ...)standardGeneric('calculateExtremeValues'))
 setMethod('calculateExtremeValues', signature = 'CDiagnosticPlots', definition = function(obj, ...){
   ## function defining log posterior 
