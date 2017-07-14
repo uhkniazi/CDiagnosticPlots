@@ -344,7 +344,7 @@ setMethod('plot.heatmap', signature='CDiagnosticPlots', definition = function(ob
   mData = obj@mData
   # standardize the variables
   s = apply(mData, 1, sd)
-  ## remove any samples with sd 0
+  ## remove any variables with sd 0
   f = s <= 0
   s = s[!f]
   mData = mData[!f,]

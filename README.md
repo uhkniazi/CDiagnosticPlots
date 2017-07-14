@@ -70,6 +70,9 @@ obj = Object of type CDiagnosticPlots
 **Name: plot.dendogram**  
 **Type:** Plotting.  
 
+**Name: plot.heatmap**  
+**Type:** Plotting.  
+
 **Name: calculateExtremeValues & mGetExtremeValues**  
 **Type:** Utility.  
 **DESC:** This function may be useful in some cases, and will mark high data values within the calculated parameter space and model. We assume each sample is normally distributed - we check if any observed data points are larger than than what would be expected under that model, under repeated simulations. (Use the results as a guideline only)
