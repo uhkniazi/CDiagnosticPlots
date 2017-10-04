@@ -74,14 +74,22 @@ which(v2 > 0)
 
 ## change parameters 
 l = CDiagnosticPlotsGetParameters(oDiag.1)
-l
-# set all parameters to false
-l2 = lapply(l, function(x) x = F)
+l$PCA.jitter = F
+l$HC.jitter = F
 
-# recalculate with new parameters
-oDiag.1.2 = CDiagnosticPlotsSetParameters(oDiag.2, l2)
-plot.PCA(oDiag.2, fBatch, cex.main=1)
+## this should give an error as scaling can't be done
+## if all the vector 0 for PCA
+oDiag.1.2 = CDiagnosticPlotsSetParameters(oDiag.1, l)
+## reset flag for jittering
+l$PCA.jitter = T
+## should work this time
+oDiag.1.2 = CDiagnosticPlotsSetParameters(oDiag.1, l)
+plot.PCA(oDiag.1, fBatch)
 plot.PCA(oDiag.1.2, fBatch)
+plot.dendogram(oDiag.1, fBatch)
+plot.dendogram(oDiag.1.2, fBatch)
+
+
 
 
 

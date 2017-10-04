@@ -126,10 +126,12 @@ setMethod('CDiagnosticPlotsBuild', signature = 'CDiagnosticPlots', definition = 
   }
   
   ## perform PCA
-  getPCA = function(mData, scaleSubjects=T, scaleVariables=T){
+  getPCA = function(mData, scaleSubjects=T, scaleVariables=T, jitter=T){
     ## add a normal jitter to each cell to remove zeros
-    n = dim(mData)[1] * dim(mData)[2]
-    mData = mData + rnorm(n)
+    if (jitter){
+      n = dim(mData)[1] * dim(mData)[2]
+      mData = mData + rnorm(n, 0, 0.1)
+    }
     
     #### standardize samples first
     if (scaleSubjects){
@@ -142,10 +144,12 @@ setMethod('CDiagnosticPlotsBuild', signature = 'CDiagnosticPlots', definition = 
     return(pr.out)
   }
   
-  getHClust = function(mData, scaleSubjects=T, scaleVariables=T){
+  getHClust = function(mData, scaleSubjects=T, scaleVariables=T, jitter=T){
     ## add a normal jitter to each cell to remove zeros
-    n = dim(mData)[1] * dim(mData)[2]
-    mData = mData + rnorm(n)
+    if (jitter){
+      n = dim(mData)[1] * dim(mData)[2]
+      mData = mData + rnorm(n, 0, 0.1)
+    }
     
     #### standardize samples first
     if (scaleSubjects){
@@ -166,9 +170,9 @@ setMethod('CDiagnosticPlotsBuild', signature = 'CDiagnosticPlots', definition = 
   # step 1, calculate various summaries for one dimensional statistics
   lData = getSummary(obj@mData, mean.sd)
   lData = append(lData, getSummary(obj@mData, missing.bin))
-  l = getPCA(obj@mData, obj@lParam$PCA.scaleSubjects, obj@lParam$PCA.scaleVariables)
+  l = getPCA(obj@mData, obj@lParam$PCA.scaleSubjects, obj@lParam$PCA.scaleVariables, obj@lParam$PCA.jitter)
   lData$PCA = l
-  l = getHClust(obj@mData, obj@lParam$HC.scaleSubjects, obj@lParam$HC.scaleVaribles)
+  l = getHClust(obj@mData, obj@lParam$HC.scaleSubjects, obj@lParam$HC.scaleVaribles, obj@lParam$HC.jitter)
   lData$HC = l
   obj@lData=lData
   return(obj)
@@ -196,6 +200,8 @@ setMethod('CDiagnosticPlotsGetParameters', signature = 'CDiagnosticPlots', defin
     obj@lParam$PCA.scaleVariables = T
     obj@lParam$HC.scaleSubjects = T
     obj@lParam$HC.scaleVaribles = T
+    obj@lParam$PCA.jitter = T
+    obj@lParam$HC.jitter = T
   }
   return(obj@lParam)
 })

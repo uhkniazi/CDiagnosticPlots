@@ -39,9 +39,9 @@ obj = Object of type CDiagnosticPlots
 ## summary of missing data
   missing.bin = function(mData)
 ## perform PCA
-  getPCA = function(mData, scaleSubjects=T, scaleVariables=T)
+  getPCA = function(mData, scaleSubjects=T, scaleVariables=T, jitter=T)
 ## perform HC
-  getHClust = function(mData, scaleSubjects=T, scaleVariables=T)
+  getHClust = function(mData, scaleSubjects=T, scaleVariables=T, jitter=T)
 ```  
 **Object Building Steps**  
 1.  Get the summary for each statistic for each sample.  
