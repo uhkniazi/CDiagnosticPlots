@@ -183,7 +183,10 @@ setMethod('CDiagnosticPlotsBuild', signature = 'CDiagnosticPlots', definition = 
 ## ARGS: mData = data matrix with samples in columns (subject space) and variables in rows (variable space)
 CDiagnosticPlots = function(mData, csTitle){
   # check some diagnostics here and create object
-  if (class(mData) != 'matrix') stop('CDiagnosticPlots: mData is not object of class matrix')
+  # changed on June 2022
+  # changed due to new R version as class(type_matrix) returns a character vector matrix array
+  # it used to just return matrix
+  if (class(mData)[1] != 'matrix') stop('CDiagnosticPlots: mData is not object of class matrix')
   
   ## create the object
   ob = new('CDiagnosticPlots', mData=mData, csTitle=csTitle, lData=list(), lParam=list())
@@ -311,15 +314,15 @@ setMethod('plot.missing.summary', signature = 'CDiagnosticPlots', definition = f
 })
 
 
-setGeneric('plot.PCA', function(obj, fBatch, legend.pos='bottomright', csLabels=NULL, ...)standardGeneric('plot.PCA'))
-setMethod('plot.PCA', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', csLabels=NULL, ...){
+setGeneric('plot.PCA', function(obj, fBatch, legend.pos='bottomright', csLabels=NULL, pch=20, pch.cex=1, labels.cex=1, ...)standardGeneric('plot.PCA'))
+setMethod('plot.PCA', signature = 'CDiagnosticPlots', definition = function(obj, fBatch, legend.pos='bottomright', csLabels=NULL, pch=20, pch.cex=1, labels.cex=1, ...){
   pr.out = obj@lData$PCA
   col.p = rainbow(nlevels(fBatch))
   col = col.p[as.numeric(fBatch)]
-  plot(pr.out$x[,1:2], col=col, pch=20, xlab='Z1', ylab='Z2',
-       main=paste('PCA comp 1 and 2', obj@csTitle), ...)
+  plot(pr.out$x[,1:2], col=col, pch=pch, xlab='Z1', ylab='Z2',
+       main=paste('PCA comp 1 and 2', obj@csTitle), cex=pch.cex, ...)
   if (is.null(csLabels)) csLabels = colnames(obj@mData)
-  text(pr.out$x[,1:2], labels = csLabels, pos = 1, cex=0.6)
+  text(pr.out$x[,1:2], labels = csLabels, pos = 1, cex=labels.cex)
   ## if more than 3 or 4 levels, then plot legend separately
   if (nlevels(fBatch) > 3) plot.new()
   legend(legend.pos, legend = levels(fBatch), fill=col.p, ncol=min(3,nlevels(fBatch)))
